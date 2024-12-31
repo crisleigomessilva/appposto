@@ -18,7 +18,7 @@ app.include_router(import_densidade_combustivel.router, prefix="/import-densidad
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the AppPosto API"}
+    return {"message": "Bem Vido ao AppPosto API"}
 
 @app.get("/test")
 def test_endpoint():
