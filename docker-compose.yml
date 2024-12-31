@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    container_name: appposto-web
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql+psycopg://appposto_db:123Delagoa4@db/combustivel
+    depends_on:
+      - db
+    networks:
+      - appposto-network
+
+  db:
+    image: postgres:15
+    container_name: appposto-db
+    environment:
+      POSTGRES_USER: appposto_db
+      POSTGRES_PASSWORD: 123Delagoa4
+      POSTGRES_DB: combustivel
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - appposto-network
+
+volumes:
+  postgres_data:
+
+networks:
+  appposto-network:

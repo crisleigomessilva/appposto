@@ -1,0 +1,26 @@
+# Ignorar caches e arquivos temporários
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignorar diretórios de cache de ferramentas de testes
+.pytest_cache/
+.coverage
+.tox/
+
+# Ignorar arquivos do sistema operacional
+*.DS_Store
+Thumbs.db
+
+# Ignorar logs e arquivos temporários
+*.log
+*.tmp
+
+# Ignorar ambientes virtuais locais
+.venv/
+env/
+venv/
+
+# Ignorar dependências instaladas localmente
+node_modules/
