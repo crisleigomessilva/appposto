@@ -5,7 +5,7 @@ services:
     build: .
     container_name: appposto-web
     ports:
-      - "8000:8000"
+      - "65432:5432"
     volumes:
       - .:/app
     environment:
@@ -23,7 +23,7 @@ services:
       POSTGRES_PASSWORD: 123Delagoa4
       POSTGRES_DB: combustivel
     ports:
-      - "5432:5432"
+      - "65432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
