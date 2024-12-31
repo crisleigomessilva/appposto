@@ -1,3 +1,5 @@
+
+
 services:
   web:
     build: .
@@ -5,19 +7,28 @@ services:
     ports:
       - "8081:8000"  # Porta externa 8081 mapeada para a interna 8000
     environment:
-      - DATABASE_URL=postgresql+psycopg://appposto_db:123Delagoa4@db:65432/combustivel
+      - DATABASE_URL=postgresql+psycopg://appposto_db:123Delagoa4@db:5432/combustivel
     depends_on:
       - db
+    networks:
+      - appposto-network
 
   db:
     image: postgres:15
     container_name: appposto-db
     ports:
-      - "65432:5432"
+      - "65432:5432"  # Porta externa 65432 mapeada para a interna 5432
     environment:
       POSTGRES_USER: appposto_db
       POSTGRES_PASSWORD: 123Delagoa4
       POSTGRES_DB: combustivel
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - appposto-network
 
 volumes:
   postgres_data:
+
+networks:
+  appposto-network:
