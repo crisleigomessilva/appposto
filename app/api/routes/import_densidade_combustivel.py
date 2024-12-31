@@ -4,6 +4,7 @@ from app.core.database import get_session
 from app.models.densidade_gasolina import DensidadeGasolina
 from app.models.densidade_diesel import DensidadeDiesel
 from app.models.densidade_etanol import DensidadeEtanol
+from app.api.routes.auth import get_current_user  # Dependência para validar token
 import pandas as pd
 
 router = APIRouter()
@@ -12,10 +13,12 @@ router = APIRouter()
 async def import_densidade_combustivel(
     tabela: str = Form(...),
     arquivo: UploadFile = File(...),
-    db: Session = Depends(get_session)
+    db: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user),  # Validação do token
 ):
     """
     Importa os dados do arquivo Excel e insere na tabela apropriada.
+    Requer autenticação por token JWT.
     """
     if tabela not in ["gasolina", "diesel", "etanol"]:
         raise HTTPException(status_code=400, detail="Apenas as tabelas de gasolina, diesel e etanol são suportadas neste endpoint.")
@@ -71,4 +74,3 @@ async def importar_etanol(df, db):
         )
         db.add(nova_entrada)
     db.commit()
-

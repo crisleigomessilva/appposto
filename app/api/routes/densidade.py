@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from pydantic import BaseModel, Field
 from app.core.database import get_session
+from app.api.routes.auth import get_current_user # Dependência para validar token
 from app.models.densidade_gasolina import DensidadeGasolina
 from app.models.densidade_etanol import DensidadeEtanol
 from app.models.densidade_diesel import DensidadeDiesel
@@ -40,7 +41,15 @@ class DensidadeResponse(BaseModel):
     status: str  # Usando uma string para o status (Dentro ou Fora da especificação)
 
 @router.post("/buscar_densidade_corrigida", response_model=DensidadeResponse)
-async def buscar_densidade_corrigida(dados: DensidadeRequest, db: Session = Depends(get_session)):
+async def buscar_densidade_corrigida(
+    dados: DensidadeRequest,
+    db: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user),  # Validação do token
+):
+    """
+    Busca a densidade corrigida com base nos dados fornecidos.
+    Requer autenticação por token JWT.
+    """
     # Mapeamento dos tipos de combustível para seus respectivos modelos de banco de dados
     model_map = {
         "Gasolina Comum": DensidadeGasolina,
@@ -51,7 +60,7 @@ async def buscar_densidade_corrigida(dados: DensidadeRequest, db: Session = Depe
         "Diesel S10": DensidadeDiesel,
         "Diesel S10 Aditivado": DensidadeDiesel,
         "Diesel S500": DensidadeDiesel,
-        "Diesel S500 Aditivado": DensidadeDiesel
+        "Diesel S500 Aditivado": DensidadeDiesel,
     }
 
     model = model_map.get(dados.tipo_combustivel)
@@ -71,11 +80,11 @@ async def buscar_densidade_corrigida(dados: DensidadeRequest, db: Session = Depe
         coluna_corrigida,
         model.teor_alcoolico if model == DensidadeEtanol else False
     ).filter(
-        func.abs(model.temperatura_observada - dados.temperatura_observada) < 1.0,  # Aumentando para 1°C
-        func.abs(model.densidade_observada - dados.densidade_observada) < 0.01  # Aumentando para 0.01 g/mL
+        func.abs(model.temperatura_observada - dados.temperatura_observada) < 1.0,
+        func.abs(model.densidade_observada - dados.densidade_observada) < 0.01
     ).order_by(
-        func.abs(model.temperatura_observada - dados.temperatura_observada),  # Ordenando pela menor diferença de temperatura
-        func.abs(model.densidade_observada - dados.densidade_observada)  # Ordenando pela menor diferença de densidade
+        func.abs(model.temperatura_observada - dados.temperatura_observada),
+        func.abs(model.densidade_observada - dados.densidade_observada)
     ).first()
 
     if resultado is None:

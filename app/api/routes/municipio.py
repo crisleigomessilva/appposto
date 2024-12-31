@@ -3,7 +3,7 @@ import requests
 from sqlalchemy.orm import Session
 from app.models.municipio import Municipio
 from app.core.database import get_session
-
+from app.api.routes.auth import get_current_user   # Dependência para validação do token
 
 router = APIRouter()
 
@@ -11,12 +11,19 @@ IBGE_API_URL = "https://servicodados.ibge.gov.br/api/v1/localidades/estados/{uf}
 
 
 @router.post("/municipios/{uf}")
-def buscar_e_salvar_municipios(uf: str, db: Session = Depends(get_session)):
+def buscar_e_salvar_municipios(
+    uf: str,
+    db: Session = Depends(get_session),
+    current_user: dict = Depends(get_current_user),  # Validação do token
+):
     """
     Busca os municípios da API do IBGE e salva na tabela 'municipio'.
+    Requer autenticação por token JWT.
+
     Args:
         uf (str): Sigla do estado para buscar os municípios (ex.: SP, RJ).
         db (Session): Sessão do banco de dados.
+
     Returns:
         dict: Resumo da operação.
     """

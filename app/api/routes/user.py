@@ -4,7 +4,7 @@ from typing import List
 from app.core.database import get_session
 from app.models.usuario import Usuario
 from pydantic import BaseModel
-from app.core.security import hash_password, verify_password
+from app.core.security import hash_password
 from datetime import datetime
 
 
@@ -40,7 +40,7 @@ def criar_usuario(usuario: UsuarioCreate, db: Session = Depends(get_session)):
     # Gera o hash da senha antes de salvar
     senha_hash = hash_password(usuario.senha)
 
-    # Cria o registro inicial sem o id_md5
+    # Cria o registro inicial
     novo_usuario = Usuario(
         nome=usuario.nome,
         email=usuario.email,
@@ -63,8 +63,6 @@ def criar_usuario(usuario: UsuarioCreate, db: Session = Depends(get_session)):
     db.refresh(novo_usuario)
 
     return novo_usuario
-
-
 
 
 @router.get("/{usuario_id}", response_model=UsuarioResponse)
